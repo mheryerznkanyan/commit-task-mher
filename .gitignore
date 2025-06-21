@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data and vector DBs
+app/vector_db/
+downloads/
+chunks/
+*.pdf
+*.pkl
+*.index
+
+# Environment
+.env
+
+# OS files
+.DS_Store
+
+# Jupyter and notebook checkpoints
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log 

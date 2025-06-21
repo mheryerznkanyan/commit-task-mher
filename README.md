@@ -1,229 +1,59 @@
-# Research Paper Processing Pipeline
+# arXiv Paper Search & QA API
 
-A comprehensive system for searching, downloading, processing, and indexing ArXiv research papers using semantic chunking and vector search.
+A FastAPI application for searching arXiv, downloading papers, extracting text, semantic chunking, and answering complex questions using FAISS vector search.
 
-## Features
+## Quickstart (Docker)
 
-- **ArXiv Integration**: Search and download papers from ArXiv
-- **PDF Processing**: Extract and preprocess text from PDF files
-- **Semantic Chunking**: Create meaningful text chunks using sentence transformers
-- **Vector Database**: Store and search chunks using Qdrant or FAISS vector database
-- **Modular Architecture**: Clean, object-oriented design with separate components
+1. **Build the Docker image:**
+   ```bash
+   docker build -t arxiv-fastapi-app .
+   ```
 
-## Architecture
+2. **Run the container:**
+   ```bash
+   docker run -p 8000:8000 arxiv-fastapi-app
+   ```
 
-The system is built with a modular, object-oriented architecture:
+3. **Open the API docs:**
+   [http://localhost:8000/docs](http://localhost:8000/docs)
 
-- `ArXivClient`: Handles ArXiv API interactions
-- `PDFProcessor`: Extracts and preprocesses PDF text
-- `SemanticChunker`: Creates semantic chunks with embeddings
-- `QdrantDatabase`: Manages Qdrant vector storage and retrieval
-- `FaissDatabase`: In-memory FAISS vector search (no server required)
-- `ResearchPipeline`: Orchestrates the complete workflow
+Use the interactive docs to test endpoints for creating the FAISS DB, searching, and complex QA.
 
-## Installation
+---
 
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+## Running Tests
 
-2. For Qdrant (optional, for persistent vector DB):
-```bash
-docker run -p 6333:6333 qdrant/qdrant
-```
-
-FAISS works in-memory and does not require a server.
-
-## Usage
-
-### Basic Usage (Qdrant)
-
-```python
-from research_pipeline import ResearchPipeline
-
-pipeline = ResearchPipeline()
-results = pipeline.run_complete_pipeline("large language models", max_results=5)
-search_results = pipeline.search_database("transformer architecture", top_k=10)
-```
-
-### Using FAISS Vector Database
-
-```python
-from faiss_database import FaissDatabase
-
-# Create FAISS DB
-faiss_db = FaissDatabase()
-
-# Add chunks (from your chunking pipeline)
-faiss_db.add_chunks(chunks)
-
-# Search
-results = faiss_db.search("ex", top_k=5)
-
-# Save/load index
-faiss_db.save("faiss_index")
-faiss_db.load("faiss_index")
-```
-
-### Component Usage
-
-```python
-# ArXiv client
-from arxiv_client import ArXivClient
-client = ArXivClient()
-papers = client.search("machine learning", max_results=10)
-client.download_papers([paper['arxiv_id'] for paper in papers])
-
-# PDF processing
-from pdf_processor import PDFProcessor
-processor = PDFProcessor()
-pdf_data = processor.process_pdf("path/to/paper.pdf")
-
-# Semantic chunking
-from semantic_chunker import SemanticChunker
-chunker = SemanticChunker()
-chunks = chunker.process_sentences(pdf_data['sentences'])
-
-# Vector database (Qdrant or FAISS)
-from qdrant_database import QdrantDatabase
-db = QdrantDatabase()
-db.add_paper("arxiv_id", "title", "summary", "link", chunks)
-results = db.search("query", top_k=5)
-
-from faiss_database import FaissDatabase
-faiss_db = FaissDatabase()
-faiss_db.add_chunks(chunks)
-results = faiss_db.search("query", top_k=5)
-```
-
-### Running the Demo
+To run the test suite (requires pytest):
 
 ```bash
-python main.py
+pytest app/tests/test_faiss_and_api.py -s
 ```
 
-## Configuration
+This will run all core functionality and API tests, printing average similarity scores and sample answers.
 
-### Qdrant Setup
+---
 
-1. Install Docker
-2. Run Qdrant container:
-```bash
-docker run -p 6333:6333 qdrant/qdrant
-```
+For development or testing, see the `app/tests/` directory for example tests.
 
-### Model Configuration
+---
 
-The system uses `all-MiniLM-L6-v2` by default for sentence embeddings. You can change this in the `SemanticChunker`, `QdrantDatabase`, or `FaissDatabase` classes.
+## Future Work
 
-## File Structure
+- **Semantic chunking improvements:**
+  - Explore more advanced or adaptive chunking strategies for better context retention and retrieval.
 
-```
-├── arxiv_client.py      # ArXiv API client
-├── pdf_processor.py     # PDF text extraction
-├── semantic_chunker.py  # Semantic chunking
-├── qdrant_database.py   # Qdrant vector database
-├── faiss_database.py    # FAISS vector database
-├── research_pipeline.py # Main pipeline
-├── main.py             # Demo script
-├── requirements.txt    # Dependencies
-└── README.md          # This file
-```
+- **Scalability:**
+  - Design for distributed processing  GPU availability and storage to handle large-scale paper collections and queries.
 
-## API Reference
+- **Handling complex data:**
+  - Support extraction and semantic search for images, graphs, tables, and formulas in PDFs.
+  - Evaluate and compare PyMuPDF vs [unstructured.io](https://unstructured.io/) for richer document parsing.
 
-### FaissDatabase
+- **Crash detection and monitoring:**
+  - Integrate syslog or similar logging for crash/error detection and alerting.
 
-In-memory vector search using FAISS. No server required.
+- **Caching:**
+  - Add Redis or similar caching layer to speed up repeated queries and reduce load.
 
-#### Methods
-- `add_chunks(chunks)`: Add chunk dictionaries to the index
-- `search(query, top_k)`: Search for similar chunks
-- `save(path)`: Save index and metadata
-- `load(path)`: Load index and metadata
-- `clear()`: Clear all data
-
-### ResearchPipeline
-
-Main class that orchestrates the complete workflow.
-
-#### Methods
-- `run_complete_pipeline(query, max_results)`: Run the complete pipeline
-- `search_and_download(query, max_results)`: Search and download papers
-- `process_papers(papers)`: Process multiple papers
-- `search_database(query, top_k, filter_arxiv_id)`: Search the vector database
-- `get_database_stats()`: Get database statistics
-
-### ArXivClient
-
-Handles ArXiv API interactions.
-
-#### Methods
-- `search(query, max_results)`: Search for papers
-- `download_pdf(arxiv_id, save_dir)`: Download a single PDF
-- `download_papers(arxiv_ids, save_dir)`: Download multiple PDFs
-
-### PDFProcessor
-
-Extracts and preprocesses PDF text.
-
-#### Methods
-- `extract_text(pdf_path)`: Extract raw text from PDF
-- `preprocess_text(text)`: Clean and normalize text
-- `split_sentences(text)`: Split text into sentences
-- `process_pdf(pdf_path)`: Complete PDF processing pipeline
-
-### SemanticChunker
-
-Creates semantic chunks from sentences.
-
-#### Methods
-- `create_chunks(sentences, chunk_size, overlap)`: Create initial chunks
-- `merge_similar_chunks(chunks, similarity_threshold)`: Merge similar chunks
-- `process_sentences(sentences, chunk_size, overlap, similarity_threshold)`: Complete chunking pipeline
-
-### QdrantDatabase
-
-Manages vector storage and retrieval.
-
-#### Methods
-- `add_paper(arxiv_id, title, summary, link, chunks)`: Add paper to database
-- `search(query, top_k, filter_arxiv_id)`: Search for similar chunks
-- `get_collection_info()`: Get database statistics
-- `delete_paper(arxiv_id)`: Delete paper from database
-- `clear_collection()`: Clear all data
-
-## Performance
-
-- **Text Extraction**: Uses PyPDF2 for reliable PDF text extraction
-- **Embeddings**: Sentence transformers for high-quality semantic embeddings
-- **Vector Search**: Qdrant for persistent, FAISS for in-memory fast similarity search
-- **Chunking**: Configurable chunk size and overlap for optimal results
-
-## Error Handling
-
-The system includes comprehensive error handling and logging:
-- Network errors during downloads
-- PDF processing failures
-- Database connection issues
-- Invalid input validation
-
-## Logging
-
-The system uses Python's logging module with configurable levels:
-- INFO: General progress information
-- WARNING: Non-critical issues
-- ERROR: Critical failures
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is open source and available under the MIT License. 
+- **Vector database selection:**
+  - Evaluate and allow switching between FAISS, Qdrant, and other vector DBs based on use case (local, cloud, scalability, etc). 

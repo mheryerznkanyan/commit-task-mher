@@ -104,5 +104,9 @@ if __name__ == "__main__":
     logger.info("="*60)
     related = get_related_texts("transformer models for healthcare", top_k=10)
     for i, (text, score) in enumerate(related, 1):
-        logger.info(f"Result {i} (Score: {score:.3f}):\n{text}\n") 
+        logger.info(f"Result {i} (Score: {score:.3f}):\n{text}\n")
+
+    print("\nTo run the FastAPI server, use:")
+    print("uvicorn app.src.api:app --reload --port 8000")
+    print("(Run this command from the project root directory)") 
 

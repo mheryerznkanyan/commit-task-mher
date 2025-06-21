@@ -10,7 +10,6 @@ import logging
 from arxiv_client import ArXivClient
 from pdf_processor import PDFProcessor
 from semantic_chunker import SemanticChunker
-from qdrant_database import QdrantDatabase
 from faiss_database import FaissDatabase
 
 # Configure logging
@@ -27,8 +26,7 @@ class ResearchPipeline:
     def __init__(self, 
                  downloads_dir: str = "downloads",
                  chunks_dir: str = "chunks",
-                 qdrant_host: str = "localhost",
-                 qdrant_port: int = 6333):
+                    ):
         """
         Initialize the research pipeline.
         

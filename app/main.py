@@ -7,6 +7,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 import research_pipeline
+from faiss_database import FaissDatabase
 
 # Configure logging
 logging.basicConfig(
@@ -82,5 +83,24 @@ def main():
         raise
 
 
+def get_related_texts(query_text, top_k=5, db_path="app/vector_db/faiss_index"):
+    """
+    Load the FAISS database and return the most related texts to the given query_text.
+    """
+    db = FaissDatabase()
+    db.load(db_path)
+    results = db.search(query_text, top_k=top_k)
+    return [r['text'] for r in results]
+
+
 if __name__ == "__main__":
-    main() 
+    main()
+
+
+    # print("="*60)
+    # print("EXAMPLE SEARCH")
+    # print("="*60)
+    # related = get_related_texts("What is a transformer model?", top_k=3)
+    # for i, text in enumerate(related, 1):
+    #     print(f"Result {i}:\n{text}\n") 
+

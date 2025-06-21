@@ -19,7 +19,11 @@ from complex_qa import decompose_question, retrieve_answers, compose_final_answe
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -50,7 +54,7 @@ def retrieve_answers(sub_questions, db, top_k=3):
     for sub_q in sub_questions:
         results = db.search(sub_q, top_k=top_k)
         context = " ".join([r['text'] for r in results])
-        print(f"[DEBUG] Retrieved context for sub-question '{sub_q}':\n{context[:300]}...\n")
+        logger.debug(f"[DEBUG] Retrieved context for sub-question '{sub_q}':\n{context[:300]}...\n")
         answers.append((sub_q, context))
     return answers
 
@@ -85,7 +89,7 @@ def compose_final_answer(question, sub_answers):
     ]
     answers = []
     for i, prompt in enumerate(prompts, 1):
-        print(f"\n[DEBUG] Trying prompt {i} for final answer composition...\n")
+        logger.debug(f"\n[DEBUG] Trying prompt {i} for final answer composition...\n")
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -117,34 +121,34 @@ def judge_answers(question, answers):
         max_tokens=300,
         temperature=0.1,
     )
-    print(response.choices[0].message.content)
+    logger.info(response.choices[0].message.content)
 
 
 def main():
     db = load_faiss_db()
-    print("\nComplex Question Answering (type 'exit' to quit)")
+    logger.info("\nComplex Question Answering (type 'exit' to quit)")
     while True:
         question = input("\nAsk your complex question: ").strip()
         if question.lower() in ("exit", "quit"):
-            print("Exiting.")
+            logger.info("Exiting.")
             break
         if not question:
             continue
-        print("\nDecomposing question...")
+        logger.info("\nDecomposing question...")
         sub_questions = decompose_question(question)
-        print("Sub-questions:")
+        logger.info("Sub-questions:")
         for i, sq in enumerate(sub_questions, 1):
-            print(f"  {i}. {sq}")
-        print("\nRetrieving context for each sub-question...")
+            logger.info(f"  {i}. {sq}")
+        logger.info("\nRetrieving context for each sub-question...")
         sub_answers = retrieve_answers(sub_questions, db)
         for i, (sq, ans) in enumerate(sub_answers, 1):
-            print(f"\nSub-question {i}: {sq}\nRelevant context: {ans[:200]}...")
-        print("\nComposing final answer...")
+            logger.debug(f"\nSub-question {i}: {sq}\nRelevant context: {ans[:200]}...")
+        logger.info("\nComposing final answer...")
         final_answer = compose_final_answer(question, sub_answers)
-        print("\nFinal Answer:\n", final_answer)
-        print("\n=== SUMMARY ===")
-        print(f"QUESTION: {question}")
-        print(f"ANSWER: {final_answer}")
+        logger.info("\nFinal Answer:\n%s", final_answer)
+        logger.info("\n=== SUMMARY ===")
+        logger.info(f"QUESTION: {question}")
+        logger.info(f"ANSWER: {final_answer}")
 
 if __name__ == "__main__":
     main() 

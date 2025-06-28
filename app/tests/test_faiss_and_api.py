@@ -8,16 +8,28 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
 from api import app, FAISS_PATH
 from faiss_database import FaissDatabase
-from complex_qa import load_faiss_db, decompose_question, retrieve_answers, compose_final_answer
+from complex_qa import (
+    load_faiss_db,
+    decompose_question,
+    retrieve_answers,
+    compose_final_answer,
+)
 
 client = TestClient(app)
+
 
 @pytest.fixture(scope="module")
 def setup_faiss_db():
     # Ensure FAISS DB exists for tests
-    if not (os.path.exists(FAISS_PATH + ".index") and os.path.exists(FAISS_PATH + ".chunks.pkl")):
+    if not (
+        os.path.exists(FAISS_PATH + ".index")
+        and os.path.exists(FAISS_PATH + ".chunks.pkl")
+    ):
         # Create DB via API
-        resp = client.post("/create_faiss_db", json={"query": "transformers in healthcare", "num_papers": 3})
+        resp = client.post(
+            "/create_faiss_db",
+            json={"query": "transformers in healthcare", "num_papers": 3},
+        )
         assert resp.status_code == 200
     yield
     # Teardown: clean up DB
@@ -38,7 +50,10 @@ def test_faiss_text_extraction_and_score(setup_faiss_db):
 
 
 def test_api_get_related_texts(setup_faiss_db):
-    resp = client.post("/get_related_texts", json={"query_text": "transformers in healthcare", "top_k": 3})
+    resp = client.post(
+        "/get_related_texts",
+        json={"query_text": "transformers in healthcare", "top_k": 3},
+    )
     assert resp.status_code == 200
     data = resp.json()
     assert isinstance(data, list)
@@ -76,9 +91,12 @@ def test_complex_qa_judgement(setup_faiss_db):
 
 
 def test_api_get_complex_qa(setup_faiss_db):
-    resp = client.post("/get_complex_qa", json={"question": "How are transformer models used in healthcare?", "top_k": 2})
+    resp = client.post(
+        "/get_complex_qa",
+        json={"question": "How are transformer models used in healthcare?", "top_k": 2},
+    )
     assert resp.status_code == 200
     data = resp.json()
     assert "final_answer" in data
     assert "transformer" in data["final_answer"].lower()
-    assert "health" in data["final_answer"].lower() 
+    assert "health" in data["final_answer"].lower()

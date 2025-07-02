@@ -2,7 +2,7 @@
 PDF Processor for text extraction and preprocessing.
 """
 
-import PyPDF2
+import fitz  # PyMuPDF
 import re
 from typing import List, Dict
 import logging
@@ -27,13 +27,13 @@ class PDFProcessor:
             Extracted text string
         """
         try:
-            with open(pdf_path, "rb") as file:
-                pdf_reader = PyPDF2.PdfReader(file)  ## fix this
-                text = ""
-                for page in pdf_reader.pages:
-                    text += page.extract_text() + "\n"
-                return text
-
+            doc = fitz.open(pdf_path)
+            text = ""
+            for page in doc:
+                page_text = page.get_text()
+                if page_text:
+                    text += page_text + "\n"
+            return text
         except Exception as e:
             logger.error(f"Error extracting text from {pdf_path}: {e}")
             return ""

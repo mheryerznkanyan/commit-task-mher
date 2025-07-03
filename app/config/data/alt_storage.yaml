@@ -1,0 +1,4 @@
+paths:
+  faiss_index: app/vector_db/alt_faiss_index
+  chunks_dir: app/alt_chunks
+  downloads_dir: app/alt_downloads 

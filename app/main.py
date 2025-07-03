@@ -5,6 +5,8 @@ Main script demonstrating the complete research pipeline.
 import logging
 import sys
 import os
+import hydra
+from omegaconf import DictConfig, OmegaConf
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 import research_pipeline
@@ -20,15 +22,18 @@ os.makedirs("app/chunks", exist_ok=True)
 os.makedirs("app/downloads", exist_ok=True)
 
 
-def main():
+@hydra.main(config_path="config", config_name="config.yaml")
+def main(cfg: DictConfig):
     """Run the complete research pipeline."""
 
+    print("\n===== HYDRA CONFIG =====\n" + OmegaConf.to_yaml(cfg) + "\n========================\n")
+
     # Initialize pipeline
-    pipeline = research_pipeline.ResearchPipeline()
+    pipeline = research_pipeline.ResearchPipeline(cfg)
 
     # Example query
-    query = "large language models"
-    max_results = 15
+    query = cfg.pipeline.query
+    max_results = cfg.pipeline.max_results
 
     logger.info("Starting research pipeline")
     logger.info(f"Query: {query}")

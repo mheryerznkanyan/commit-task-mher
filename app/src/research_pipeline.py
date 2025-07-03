@@ -6,10 +6,11 @@ import os
 import json
 from typing import List, Dict, Optional
 import logging
+import openai
 
 from arxiv_client import ArXivClient
 from pdf_processor import PDFProcessor
-from semantic_chunker import SemanticChunker
+from chunking.paragraph_chunker import ParagraphChunker
 from faiss_database import FaissDatabase
 
 # Configure logging
@@ -22,34 +23,23 @@ logger = logging.getLogger(__name__)
 class ResearchPipeline:
     """Main pipeline for processing research papers and building a vector database."""
 
-    def __init__(
-        self,
-        downloads_dir: str = "downloads",
-        chunks_dir: str = "chunks",
-    ):
-        """
-        Initialize the research pipeline.
-
-        Args:
-            downloads_dir: Directory for downloaded PDFs
-            chunks_dir: Directory for saved chunks
-            qdrant_host: Qdrant host
-            qdrant_port: Qdrant port
-        """
-        self.downloads_dir = downloads_dir
-        self.chunks_dir = chunks_dir
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.downloads_dir = cfg.data.paths.downloads_dir
+        self.chunks_dir = cfg.data.paths.chunks_dir
+        self.model_name = cfg.model.embedding.model_name
 
         # Create directories
-        os.makedirs(downloads_dir, exist_ok=True)
-        os.makedirs(chunks_dir, exist_ok=True)
+        os.makedirs(self.downloads_dir, exist_ok=True)
+        os.makedirs(self.chunks_dir, exist_ok=True)
 
         # Initialize components
         self.arxiv_client = ArXivClient()
         self.pdf_processor = PDFProcessor()
-        self.chunker = SemanticChunker()
-        self.database = FaissDatabase()
+        self.chunker = ParagraphChunker(model_name=self.model_name)
+        self.database = FaissDatabase(model_name=self.model_name)
 
-        logger.info("Research pipeline initialized")
+        logger.info(f"Research pipeline initialized with model: {self.model_name}")
 
     def search_and_download(
         self, query: str, max_results: int = 5, max_workers: int = 8
@@ -97,24 +87,33 @@ class ResearchPipeline:
             List of chunks or None if failed
         """
         try:
-            # Process PDF
             pdf_data = self.pdf_processor.process_pdf(pdf_path)
+            text = pdf_data["text"]
+            sentences = pdf_data["sentences"]
 
-            if not pdf_data["sentences"]:
-                logger.warning(f"No sentences extracted from {pdf_path}")
-                return None
+            # Debug: print first 500 chars and number of blank lines
+            logger.debug(f"First 500 chars of text for {arxiv_id}: {text[:500]}")
+            logger.debug(f"Number of blank lines (\\n\\n) in text: {text.count('\n\n')}")
 
-            # Create semantic chunks
-            chunks = self.chunker.process_sentences(
-                pdf_data["sentences"],
-                chunk_size=5,  # How many sentences per chunk
-                overlap=2,  # How many sentences to overlap
-                similarity_threshold=0.85,  # How similar the chunks should be
-            )
-
-            # Add arxiv_id to chunks
-            for chunk in chunks:
-                chunk["arxiv_id"] = arxiv_id
+            # If only one paragraph, fallback to sentence-based chunking
+            if text.count('\n\n') < 2:
+                logger.warning(f"Only one paragraph found in {pdf_path}, falling back to sentence-based chunking.")
+                chunk_size = 5
+                chunks = []
+                for i in range(0, len(sentences), chunk_size):
+                    chunk_text = " ".join(sentences[i:i+chunk_size])
+                    chunk_embedding = self.chunker.get_embedding(chunk_text)
+                    chunk = {
+                        "text": chunk_text,
+                        "embedding": chunk_embedding,
+                        "chunk_id": i // chunk_size,
+                        "arxiv_id": arxiv_id,
+                    }
+                    chunks.append(chunk)
+            else:
+                chunks = self.chunker.create_chunks(text)
+                for chunk in chunks:
+                    chunk["arxiv_id"] = arxiv_id
 
             logger.info(f"Processed paper {arxiv_id}: {len(chunks)} chunks")
             return chunks
@@ -220,6 +219,81 @@ class ResearchPipeline:
         """Get database statistics."""
         return self.database.get_collection_info()
 
+    def _evaluate_with_qa_llm_judge(self, qa_file=None, top_k=3, judge_model="gpt-4o", batch_size=2):
+        import re, ast
+        # Always look for qa_pairs.json in app/qa_pairs.json relative to project root
+        if qa_file is None:
+            qa_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../qa_pairs.json'))
+        # Load QA pairs
+        if not os.path.exists(qa_file):
+            logger.warning(f"QA file not found: {qa_file}")
+            return None
+        with open(qa_file, "r", encoding="utf-8") as f:
+            qa_pairs = json.load(f)
+        if not qa_pairs:
+            logger.warning("No QA pairs loaded.")
+            return None
+        # Prepare batches for LLM judge
+        batches = []
+        batch = []
+        for qa in qa_pairs:
+            question = qa["question"]
+            ground_truth = qa["answer"]
+            # Retrieve answer from DB (optionally filter by arxiv_id)
+            retrieved = self.search_database(question, top_k=top_k)
+            retrieved_text = " ".join([r["text"] for r in retrieved])
+            batch.append({"question": question, "ground_truth": ground_truth, "retrieved": retrieved_text})
+            if len(batch) == batch_size:
+                batches.append(batch)
+                batch = []
+        if batch:
+            batches.append(batch)
+        # LLM judge
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+        all_scores = []
+        for batch in batches:
+            prompt = (
+                f"You are an expert judge. For each item below, rate the retrieved answer from 1 (irrelevant) to 100 (perfectly answers the question). "
+                f"Also provide a short justification.\n"
+                f"Return a JSON list of objects: {{'score': int, 'justification': str}}.\n"
+                f"Items:\n"
+            )
+            for i, qa in enumerate(batch):
+                prompt += (
+                    f"Item {i+1}:\n"
+                    f"Question: {qa['question']}\n"
+                    f"Ground-truth answer: {qa['ground_truth']}\n"
+                    f"Retrieved answer: {qa['retrieved']}\n"
+                )
+            response = openai.chat.completions.create(
+                model=judge_model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=2048,
+                temperature=0.0,
+            )
+            content = response.choices[0].message.content
+            try:
+                result = json.loads(content)
+            except Exception:
+                match = re.search(r'\[.*\]', content, re.DOTALL)
+                if match:
+                    try:
+                        result = json.loads(match.group(0))
+                    except Exception:
+                        result = ast.literal_eval(match.group(0))
+                else:
+                    logger.error("Failed to parse LLM batch judge response.")
+                    result = []
+            for item in result:
+                all_scores.append(item.get("score", 0))
+                logger.info(f"LLM Judge: Score={item.get('score', 0)}, Justification={item.get('justification', '')}")
+        avg_score = sum(all_scores) / len(all_scores) if all_scores else 0
+        logger.info(f"Average LLM QA Score: {avg_score:.2f} over {len(all_scores)} QA pairs.")
+        return avg_score
+
     def run_complete_pipeline(self, query: str, max_results: int = 5) -> Dict:
         """
         Run the complete pipeline: search, download, process, and index.
@@ -252,6 +326,11 @@ class ResearchPipeline:
         # Step 3: Get database stats
         db_stats = self.get_database_stats()
 
+        # Step 4: Run QA/LLM evaluation and log results
+        avg_score = self._evaluate_with_qa_llm_judge()
+        if avg_score is not None:
+            logger.info(f"Average LLM QA Score: {avg_score:.2f}")
+
         # Summary
         summary = {
             "query": query,
@@ -260,7 +339,9 @@ class ResearchPipeline:
             "total_chunks": sum(len(chunks) for chunks in processed_chunks.values()),
             "database_stats": db_stats,
             "arxiv_ids": list(processed_chunks.keys()),
+            "average_llm_qa_score": avg_score,
         }
 
         logger.info(f"Pipeline completed: {summary}")
         return summary
+# Average LLM QA Score: 32.55 over 100 QA pairs.

@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class SemanticChunker(ChunkerBase):
     """Creates semantic chunks from sentences using sentence transformers."""
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, model_name):
         super().__init__(model_name)
 
     def create_chunks(self, text: str, chunk_size: int = 5, overlap: int = 2) -> List[Dict]:

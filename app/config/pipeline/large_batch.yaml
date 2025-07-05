@@ -1,5 +1,4 @@
-pipeline:
-  query: "transformers in healthcare"
-  max_results: 10
-  top_k: 5
-  max_workers: 4 
+query: "transformers in healthcare"
+max_results: 10
+top_k: 5
+max_workers: 4 

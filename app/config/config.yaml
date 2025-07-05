@@ -1,11 +1,17 @@
 defaults:
+  - _self_
   - pipeline: default
   - model: scibert
-  - chunking: paragraph
-  - data: main 
+  - chunking: semantic
+  - data: main
 
 pipeline:
   query: "transformers in healthcare"
   max_results: 7
   top_k: 3
-  max_workers: 8 
+  max_workers: 8
+
+enable_llm_evaluation: true
+qa_file: null
+judge_model: "gpt-4o"
+batch_size: 2 

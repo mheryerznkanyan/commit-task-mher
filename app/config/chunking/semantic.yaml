@@ -1,5 +1,5 @@
-chunking:
-  strategy: semantic
-  chunk_size: 5
-  overlap: 2
-  similarity_threshold: 0.9 
+
+strategy: semantic
+chunk_size: 5
+overlap: 2
+similarity_threshold: 0.9 

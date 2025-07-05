@@ -11,6 +11,8 @@ import openai
 from arxiv_client import ArXivClient
 from pdf_processor import PDFProcessor
 from chunking.paragraph_chunker import ParagraphChunker
+from chunking.semantic_chunker import SemanticChunker
+from chunking.token_chunker import TokenChunker
 from faiss_database import FaissDatabase
 
 # Configure logging
@@ -36,7 +38,18 @@ class ResearchPipeline:
         # Initialize components
         self.arxiv_client = ArXivClient()
         self.pdf_processor = PDFProcessor()
-        self.chunker = ParagraphChunker(model_name=self.model_name)
+        
+        # Initialize chunker based on config strategy
+        chunking_strategy = cfg.chunking.strategy
+        if chunking_strategy == "paragraph":
+            self.chunker = ParagraphChunker(model_name=self.model_name)
+        elif chunking_strategy == "semantic":
+            self.chunker = SemanticChunker(model_name=self.model_name)
+        elif chunking_strategy == "token":
+            self.chunker = TokenChunker(model_name=self.model_name)
+        else:
+            raise ValueError(f"Unknown chunking strategy: {chunking_strategy}. Available strategies: paragraph, semantic, token")
+            
         self.database = FaissDatabase(model_name=self.model_name)
 
         logger.info(f"Research pipeline initialized with model: {self.model_name}")
@@ -95,25 +108,10 @@ class ResearchPipeline:
             logger.debug(f"First 500 chars of text for {arxiv_id}: {text[:500]}")
             logger.debug(f"Number of blank lines (\\n\\n) in text: {text.count('\n\n')}")
 
-            # If only one paragraph, fallback to sentence-based chunking
-            if text.count('\n\n') < 2:
-                logger.warning(f"Only one paragraph found in {pdf_path}, falling back to sentence-based chunking.")
-                chunk_size = 5
-                chunks = []
-                for i in range(0, len(sentences), chunk_size):
-                    chunk_text = " ".join(sentences[i:i+chunk_size])
-                    chunk_embedding = self.chunker.get_embedding(chunk_text)
-                    chunk = {
-                        "text": chunk_text,
-                        "embedding": chunk_embedding,
-                        "chunk_id": i // chunk_size,
-                        "arxiv_id": arxiv_id,
-                    }
-                    chunks.append(chunk)
-            else:
-                chunks = self.chunker.create_chunks(text)
-                for chunk in chunks:
-                    chunk["arxiv_id"] = arxiv_id
+            # Create chunks using the configured chunker
+            chunks = self.chunker.create_chunks(text)
+            for chunk in chunks:
+                chunk["arxiv_id"] = arxiv_id
 
             logger.info(f"Processed paper {arxiv_id}: {len(chunks)} chunks")
             return chunks
@@ -219,7 +217,7 @@ class ResearchPipeline:
         """Get database statistics."""
         return self.database.get_collection_info()
 
-    def _evaluate_with_qa_llm_judge(self, qa_file=None, top_k=3, judge_model="gpt-4o", batch_size=2):
+    def _evaluate_with_qa_llm_judge(self, qa_file=None, judge_model="gpt-4o", batch_size=2):
         import re, ast
         # Always look for qa_pairs.json in app/qa_pairs.json relative to project root
         if qa_file is None:
@@ -240,7 +238,7 @@ class ResearchPipeline:
             question = qa["question"]
             ground_truth = qa["answer"]
             # Retrieve answer from DB (optionally filter by arxiv_id)
-            retrieved = self.search_database(question, top_k=top_k)
+            retrieved = self.search_database(question)
             retrieved_text = " ".join([r["text"] for r in retrieved])
             batch.append({"question": question, "ground_truth": ground_truth, "retrieved": retrieved_text})
             if len(batch) == batch_size:
@@ -327,9 +325,17 @@ class ResearchPipeline:
         db_stats = self.get_database_stats()
 
         # Step 4: Run QA/LLM evaluation and log results
-        avg_score = self._evaluate_with_qa_llm_judge()
-        if avg_score is not None:
-            logger.info(f"Average LLM QA Score: {avg_score:.2f}")
+        if self.cfg.enable_llm_evaluation:
+            avg_score = self._evaluate_with_qa_llm_judge(
+                qa_file=self.cfg.qa_file,
+                judge_model=self.cfg.judge_model,
+                batch_size=self.cfg.batch_size
+            )
+            if avg_score is not None:
+                logger.info(f"Average LLM QA Score: {avg_score:.2f}")
+        else:
+            avg_score = None
+            logger.info("LLM evaluation disabled in config")
 
         # Summary
         summary = {

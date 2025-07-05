@@ -1,0 +1,502 @@
+[
+  {
+    "question": "What is the main focus of the research paper by Van de Wetering?",
+    "answer": "The paper investigates how hospital departments can leverage IT ambidexterity to adequately sense and respond to patients' needs and demands, enhancing patient agility.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What methodology was used in the research conducted by Van de Wetering?",
+    "answer": "The research used data obtained from 107 clinical hospital departments in the Netherlands through an online survey and tested the models' hypothesized relationships using structural equation modeling (SEM).",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is IT ambidexterity?",
+    "answer": "IT ambidexterity refers to the capacity to explore and exploit IT resources and practices.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is patient agility?",
+    "answer": "Patient agility is the ability of hospital departments to sense and respond quickly to patient-based opportunities for innovation and competitive action.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What role does digital dynamic capability play in the research model?",
+    "answer": "Digital dynamic capability acts as a mediator that positively influences patient agility when developed through IT ambidexterity.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What are some of the innovative IT solutions mentioned that can enhance care delivery?",
+    "answer": "Innovative IT solutions include electronic medical records, patient-accessible electronic health records, artificial intelligence, the Internet of Things, and interoperable data and platforms.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What challenges do hospitals face in leveraging digital technologies?",
+    "answer": "Hospitals face cultural, social, technical, and organizational challenges in fully leveraging digital technologies.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the significance of IT ambidexterity in the context of this research?",
+    "answer": "IT ambidexterity is significant because it helps develop digital dynamic capabilities that enhance patient agility.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the dynamic capabilities view (DCV)?",
+    "answer": "The dynamic capabilities view (DCV) is a theoretical framework that focuses on an organization's ability to act under changing circumstances by developing specific capabilities.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the role of the Dutch Healthcare Authority (NZa) in the Netherlands?",
+    "answer": "The Dutch Healthcare Authority (NZa) ensures that formal agreements between hospitals and health insurers focus specifically on patients' value rather than production volumes.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What are the two main research questions addressed in the paper?",
+    "answer": "1) What is IT ambidexterity's effect on hospital departments' patient agility? 2) What is the role of digital dynamic capability in converting IT ambidexterity's effect to patient agility?",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the central claim within resource-based studies in the context of IT?",
+    "answer": "The central claim is that IT, as a unique and difficult-to-imitate resource, creates business value.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What are some of the IT resources mentioned as crucial for forming technological-driven capabilities?",
+    "answer": "IT resources include IT human competencies, IT infrastructure capability, and IT flexibility.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the significance of the study for clinical practice?",
+    "answer": "The study is significant for clinical practice as it helps hospitals explore digital options and transform clinical processes to improve patient-centered care and clinician agility.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the relationship between IT ambidexterity and patient agility according to the study?",
+    "answer": "IT ambidexterity enhances the ability to sense and respond to patients' needs and demands, thereby improving patient agility.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What are some of the challenges hospitals face in ensuring high-quality patient care?",
+    "answer": "Hospitals face challenges such as exhaustive management, regulatory, and administrative processes.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the role of IT in developing organizational capabilities according to the paper?",
+    "answer": "IT plays a role in developing organizational capabilities to respond to patients' needs and enhance patient engagement.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the significance of the study's outcomes for the IS knowledge base?",
+    "answer": "The study's outcomes contribute to the IS knowledge base by demonstrating the significance of IT ambidexterity in developing digital dynamic capabilities that influence patient agility.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the importance of understanding the facets that drive IT investments benefits in clinical settings?",
+    "answer": "Understanding these facets is valuable because IT investments can be justified in clinical settings, enhancing patient care and organizational efficiency.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the relevance of the study from a theoretical and practical perspective?",
+    "answer": "The study is relevant because it justifies IT's business value and investments in clinical settings, providing insights into leveraging IT for patient agility.",
+    "arxiv_id": "2105.09013v1"
+  },
+  {
+    "question": "What is the main purpose of the research paper?",
+    "answer": "The main purpose of the paper is to explore state-of-the-art LLM-based evaluation metrics specifically applicable to the assessment of interactive conversational models in healthcare and to present a comprehensive set of evaluation metrics designed to thoroughly assess the performance of healthcare chatbots from an end-user perspective.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What are some services provided by healthcare chatbots?",
+    "answer": "Healthcare chatbots provide services such as diagnosis, personalized lifestyle recommendations, dynamic scheduling of follow-ups, and mental health support.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "Why is there a need for a unified set of evaluation metrics for healthcare chatbots?",
+    "answer": "There is a need for a unified set of evaluation metrics because existing metrics lack comprehension of medical and health concepts, neglect user-centered aspects, and fail to adequately capture vital aspects like semantic nuances and contextual relevance.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What are some user-centered aspects that existing evaluation metrics overlook?",
+    "answer": "Existing evaluation metrics overlook user-centered aspects such as trust-building, ethics, personalization, empathy, user comprehension, and emotional support.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What are the two main categories of evaluation metrics for language models?",
+    "answer": "The two main categories of evaluation metrics for language models are intrinsic and extrinsic methods.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is a limitation of intrinsic evaluation metrics in healthcare contexts?",
+    "answer": "A limitation of intrinsic evaluation metrics in healthcare contexts is their inability to capture essential elements such as semantics, context, distant dependencies, semantically-critical ordering change, and human perspectives.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the significance of emotional bonds in healthcare chatbot evaluation?",
+    "answer": "Emotional bonds are significant in healthcare chatbot evaluation because they play a vital role in physician-patient communications, and their absence can lead to inadequate support and emotion conveyed to the patient.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the issue of hallucination in healthcare chatbots?",
+    "answer": "The issue of hallucination in healthcare chatbots refers to the generation of misleading or inaccurate information, which is a significant concern in the healthcare domain where safety and currentness of information are paramount.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the challenge in balancing personalization and generalization in healthcare chatbots?",
+    "answer": "The challenge in balancing personalization and generalization in healthcare chatbots is to ensure practical and trustworthy healthcare guidance while providing personalized responses to individual users and offering accurate and reliable information to a broader user base.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What are some performance aspects of models that existing evaluations overlook?",
+    "answer": "Existing evaluations overlook performance aspects such as computational efficiency and model size, which are crucial for practical implementation.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What are the two categories of extrinsic evaluation metrics?",
+    "answer": "The two categories of extrinsic evaluation metrics are general-purpose metrics and health-specific metrics.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the role of human participation in extrinsic evaluation metrics?",
+    "answer": "Human participation in extrinsic evaluation metrics involves subjective means, where human judgments and perspectives are incorporated to assess how the model impacts end users and meets human users' expectations and requirements.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the BLEU metric used for?",
+    "answer": "The BLEU metric is used to calculate precision based on the number of mutual n-grams between the generated text and reference text.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the main focus of the paper's discussion on challenges?",
+    "answer": "The main focus of the paper's discussion on challenges is on defining and implementing evaluation metrics, emphasizing factors such as the target audience, evaluation methods, and prompt techniques involved in the evaluation process.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the significance of the life-critical nature of healthcare applications?",
+    "answer": "The life-critical nature of healthcare applications necessitates establishing a unified and comprehensive set of evaluation metrics to enable meticulous evaluation of models' performance, capabilities, identification of potential errors, and implementation of effective feedback mechanisms.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What are some tasks that interactive conversational models assist with in healthcare?",
+    "answer": "Interactive conversational models assist with tasks such as symptom assessment, primary medical and health education, mental health support, lifestyle coaching, appointment scheduling, medication reminders, patient triaging, and allocating health resources.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the limitation of using BLEU and ROUGE metrics in healthcare chatbot evaluation?",
+    "answer": "The limitation of using BLEU and ROUGE metrics in healthcare chatbot evaluation is their inability to effectively capture the semantic meaning of the text, leading to inaccurate assessments of chatbot responses.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the purpose of introducing a comprehensive set of user-centered evaluation metrics?",
+    "answer": "The purpose of introducing a comprehensive set of user-centered evaluation metrics is to address the gaps in existing metrics and provide a thorough and well-rounded comprehension of a healthcare chatbot's performance across diverse dimensions.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the significance of trust-building in healthcare chatbot evaluation?",
+    "answer": "Trust-building is significant in healthcare chatbot evaluation because it indicates the extent to which a chatbot establishes a connection and conveys support and emotion to the patient, which is crucial for effective healthcare communication.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the role of generative AI in healthcare delivery?",
+    "answer": "Generative AI is set to revolutionize healthcare delivery by transforming traditional patient care into a more personalized, efficient, and proactive process, driven by interactive conversational models like chatbots.",
+    "arxiv_id": "2309.12444v3"
+  },
+  {
+    "question": "What is the main goal of the foundational framework proposed in the paper?",
+    "answer": "The main goal of the foundational framework is to enable personalized early and timely diagnosis by delineating the diagnosis process and systematically identifying the time-dependent value of various diagnostic tests for an individual patient given their unique characteristics and history.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "Why is early diagnosis important in healthcare?",
+    "answer": "Early diagnosis is important because it enables better treatment options, improves long-term survival and quality of life, and reduces overall cost.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What are some challenges that decision-theoretic models face in medical diagnosis?",
+    "answer": "Decision-theoretic models face challenges such as not being individualized to the specific characteristics of the patient and often neglecting the fact that costs and benefits of diagnostic decisions are not known and need to be estimated from data.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What are the benefits of early diagnosis in colorectal cancer treatment?",
+    "answer": "In colorectal cancer treatment, every four weeks of delay in starting adjuvant systemic treatment is associated with an average 13% increase in risk of death, highlighting the benefits of early diagnosis.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the role of machine learning in the proposed framework?",
+    "answer": "Machine learning is integrated into the framework to estimate the optimal personalized diagnostic path and to model counterfactual diagnostic paths and the associated net benefit and uncertainties for individual patients.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the significance of providing formal definitions in the framework?",
+    "answer": "Providing formal definitions is significant because it ensures clarity, transparency, understandability, and reproducibility, and allows for the development and comparison of alternative frameworks.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "How does the framework aim to improve shared decision-making?",
+    "answer": "The framework aims to improve shared decision-making by modeling counterfactual diagnostic paths and the associated net benefit and uncertainties for individual patients, thus informing shared decision-making.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the importance of personalization in timely diagnosis?",
+    "answer": "Personalization is important in timely diagnosis because what is timely for one patient may not be so for another due to variations in disease pathogenesis, presentation, progression, and treatment effects.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What are some potential benefits of implementing the foundational framework in clinical practice?",
+    "answer": "Potential benefits include empowering clinicians and patients to better understand the strengths and weaknesses of their options during medical diagnosis and supporting them in making shared decisions.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the role of electronic health records in the proposed framework?",
+    "answer": "Electronic health records play a role in the framework by providing medical big data that, combined with methodological advances in machine learning and statistics, enables the estimation of future patient trajectories and counterfactual costs and benefits of various possible diagnostic paths.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the relationship between diagnostic uncertainty and disease stages?",
+    "answer": "Diagnostic uncertainty is usually highest in early disease stages when signs and symptoms are nonspecific and information is scarce, but it diminishes over time as the disease trajectory becomes clearer.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the significance of the continuum of health and disease in the framework?",
+    "answer": "The continuum of health and disease is significant because it highlights that health and disease are not binary states, and understanding this continuum is crucial for describing personal disease trajectories and facilitating diagnosis.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the role of differential diagnostic probability space in the framework?",
+    "answer": "The differential diagnostic probability space is used to express diagnostic uncertainty by associating probabilities and confidence intervals with each differential diagnosis related to a patient's symptoms.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "How does the framework address the challenge of optimizing the diagnostic process?",
+    "answer": "The framework addresses this challenge by providing a systematic mechanism for assessing the value of technologies, including new and existing diagnostic tests, in terms of their impact on personalized early diagnosis, resulting health outcomes, and incurred costs.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the impact of the framework on healthcare systems?",
+    "answer": "The framework is expected to lead to improved outcomes for patients and higher cost-effectiveness for healthcare systems by unlocking the potential of timely diagnosis and intervention.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the importance of integrating observed and estimated information in the diagnostic process?",
+    "answer": "Integrating observed and estimated information is important to facilitate diagnostic decisions by providing a comprehensive view of the patient's current state and potential future trajectory.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What are some fields that contribute to the multidisciplinary expertise required for implementing the framework?",
+    "answer": "Fields contributing to the multidisciplinary expertise include clinical medicine, ethics, health economics, statistics, and machine learning.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the role of decision theory in the proposed framework?",
+    "answer": "Decision theory provides precise terminology and helps formalize the intricacies and goals of medical diagnosis, aiding in the development of the framework.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "How does the framework differentiate between early and timely diagnosis?",
+    "answer": "The framework differentiates between early and timely diagnosis by providing clear definitions and modeling the net benefit and uncertainties of diagnostic paths for individual patients.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the ultimate vision for the implementation of the framework in clinical practice?",
+    "answer": "The ultimate vision is that the framework will empower clinicians and patients to make better-informed decisions during medical diagnosis, leading to improved patient outcomes and cost-effectiveness in healthcare.",
+    "arxiv_id": "2311.16195v1"
+  },
+  {
+    "question": "What is the main focus of the research paper titled 'Transformers in Healthcare A Survey'?",
+    "answer": "The paper provides an overview of how the Transformer neural network architecture has been adopted in healthcare to analyze various forms of data and discusses its benefits and limitations.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "Which neural network architecture is the paper primarily discussing?",
+    "answer": "The paper is primarily discussing the Transformer neural network architecture.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What are some of the data types that Transformers have been used to analyze in healthcare?",
+    "answer": "Transformers have been used to analyze medical imaging, structured and unstructured Electronic Health Records (EHR), social media, physiological signals, and biomolecular sequences.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What are some applications of Transformers in healthcare mentioned in the paper?",
+    "answer": "Applications include clinical diagnosis, report generation, data reconstruction, and drug-protein synthesis.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What guidelines were used to identify relevant studies for the survey?",
+    "answer": "The Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) guidelines were used.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What are some issues discussed in the paper regarding the use of Transformers in healthcare?",
+    "answer": "Issues include computational cost, model interpretability, fairness, alignment with human values, ethical implications, and environmental impact.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What is the significance of the Scaled Dot-Product Attention mechanism in Transformers?",
+    "answer": "The Scaled Dot-Product Attention mechanism allows for parallelization during training, which reduces training time compared to sequential architectures like RNNs.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What is the purpose of self-supervised pretraining in Transformers?",
+    "answer": "Self-supervised pretraining, such as masked language modeling, enables Transformers to be trained on large unlabeled datasets without costly annotations.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What are the two primary Transformer variants discussed in the paper?",
+    "answer": "The two primary Transformer variants discussed are the Bidirectional Encoder Representations from Transformers (BERT) and the Vision Transformer (ViT).",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What search engines were used to find Transformer studies in healthcare?",
+    "answer": "Google Scholar and PubMed were used to search for Transformer studies in healthcare.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What is the time frame for the studies included in the survey?",
+    "answer": "The studies included in the survey were published after 2017.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What are some of the categories used to divide the search for Transformer studies?",
+    "answer": "The search was divided into categories such as clinical NLP, EHR, social media, medical imaging, biomolecules, and bio-physical signals.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What tool was used to retrieve studies for the survey?",
+    "answer": "Harzing's Publish or Perish was used to retrieve studies.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What is the role of the mask in masked self-attention?",
+    "answer": "The mask prevents the model from attending to subsequent tokens in a sequence, which is useful in sequence prediction problems.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What is cross-attention in the context of Transformers?",
+    "answer": "Cross-attention is attention computed between tokens of one sequence with tokens of another sequence, used in the decoder module of Transformers.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "How does multi-head attention improve the performance of Transformer models?",
+    "answer": "Multi-head attention improves performance by capturing different similarity relationships in the sequence through multiple attention operations.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What is the typical number of attention heads used in the original Transformer model?",
+    "answer": "The original Transformer model employed 8 attention heads.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What are the three roles that each input embedding can take in a basic Transformer architecture?",
+    "answer": "Each input embedding can take the roles of Query (Q), Key (K), and Value (V).",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What is the purpose of the scale factor in the attention mechanism?",
+    "answer": "The scale factor is used to mitigate the vanishing gradient problem and numerical instability in the attention mechanism.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What is the significance of the PRISMA analysis process depicted in Figure 1?",
+    "answer": "The PRISMA analysis process is used for selecting relevant studies for inclusion and exclusion in the survey.",
+    "arxiv_id": "2307.00067v1"
+  },
+  {
+    "question": "What is the main focus of the study conducted by Yizhi Liu and colleagues?",
+    "answer": "The study investigates the impact of stigmatizing language (SL) in electronic health records (EHRs) on AI performance, particularly in mortality prediction, and its contribution to racial disparity in AI model development.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What type of AI model is used in the study to predict mortality?",
+    "answer": "A Transformer-based deep learning model is used for mortality prediction.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the significance of stigmatizing language (SL) in EHR notes according to the study?",
+    "answer": "Stigmatizing language in EHR notes adversely affects AI performance and contributes to racial disparities, particularly disadvantaging black patients.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What dataset is used for the analysis in the study?",
+    "answer": "The study uses the Medical Information Mart for Intensive Care III (MIMIC-III) dataset.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the time period during which the MIMIC-III data was collected?",
+    "answer": "The MIMIC-III data was collected between 2001 and 2012.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is one of the key findings regarding the removal of SL from the training data?",
+    "answer": "Removing SL from the training data helps improve AI model performance and reduces the racial gap in mortality prediction.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "How does the presence of SL affect the AI model's prediction for black patients?",
+    "answer": "The presence of SL is associated with a decrease in the predicted probability for black patients by 15.97%.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the projected market value of healthcare AI by 2027?",
+    "answer": "The market value of healthcare AI is projected to reach $41.70 billion by 2027.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What percentage of healthcare-related executives expect aggressive adoption of AI?",
+    "answer": "82% of healthcare-related executives expect aggressive adoption of AI.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the estimated reduction in healthcare spending due to AI adoption?",
+    "answer": "AI adoption is estimated to reduce healthcare spending by 5 to 10%, or $200 billion to $360 billion a year.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the role of Natural Language Processing (NLP) in healthcare AI?",
+    "answer": "NLP is valued as the next revolution in healthcare, enabling the analysis of unstructured text in EHRs to leverage physicians' expertise and observations.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is an example of stigmatizing language in EHR notes?",
+    "answer": "An example of stigmatizing language in EHR notes includes terms like 'abuser' and 'noncompliant'.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the impact of telling the AI model that a patient is Caucasian versus black?",
+    "answer": "Telling the model that a patient is Caucasian has almost no effect on the prediction, while telling that the patient is black decreases the predicted probability by 15.97%.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the effect of removing SL on the racial gap in the model's predicted probability?",
+    "answer": "Removing SL almost eliminates the racial gap in the model's predicted probability.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the significance of clinician centrality in the study?",
+    "answer": "Central clinicians, who are more influential in collaborative networks, have a stronger impact on racial disparity in AI models, and removing their SL is a more efficient bias reduction strategy.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the role of explainable AI (XAI) in the study?",
+    "answer": "Explainable AI techniques are used to demonstrate how SL hinders AI model performance and contributes to racial biases.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the impact of SL on the F1 score gap between black and white patients?",
+    "answer": "Removing SL reduces the gap between the model's predicted F1 scores for black patients versus white patients from 2.97 to 0.05.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the purpose of using adversarial perturbation approaches in the study?",
+    "answer": "Adversarial perturbation approaches are used to demonstrate the racial biases in the trained AI model associated with the presence of SL.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the significance of the keyword list of SL in the study?",
+    "answer": "The keyword list of SL is used to identify notes containing stigmatizing language, which helps in analyzing its impact on AI performance.",
+    "arxiv_id": "2305.10201v4"
+  },
+  {
+    "question": "What is the potential consequence of AI models inheriting biases from EHR notes?",
+    "answer": "AI models inheriting biases from EHR notes can perpetuate health disparities and exacerbate racial biases in healthcare.",
+    "arxiv_id": "2305.10201v4"
+  }
+]

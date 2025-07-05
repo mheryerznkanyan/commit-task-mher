@@ -1,0 +1,5 @@
+
+strategy: paragraph
+chunk_size: 5
+overlap: 2
+similarity_threshold: 0.85 

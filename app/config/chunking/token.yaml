@@ -1,0 +1,4 @@
+strategy: token
+chunk_size: 512
+overlap: 50
+similarity_threshold: 0.85 

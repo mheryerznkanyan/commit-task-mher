@@ -1,22 +1,17 @@
-# Hydra configuration for commit-project-mher
-
-paths:
-  faiss_index: app/vector_db/faiss_index
-  chunks_dir: app/chunks
-  downloads_dir: app/downloads
-
-openai:
-  model: gpt-4o
-  temperature: 0.3
-  max_tokens: 150
-
-db:
-  # Configuration for the FAISS vector database used for semantic search
-  # 'top_k' specifies how many top results to return for each query
-  top_k: 3
-
 defaults:
-  - data: data
-  - model: model
-  - chunking: chunking
-  - pipeline: pipeline 
+  - _self_
+  - pipeline: default
+  - model: scibert
+  - chunking: semantic
+  - data: main
+
+pipeline:
+  query: "transformers in healthcare"
+  max_results: 7
+  top_k: 3
+  max_workers: 8
+
+enable_llm_evaluation: true
+qa_file: null
+judge_model: "gpt-4o"
+batch_size: 2 

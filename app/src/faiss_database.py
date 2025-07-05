@@ -23,9 +23,10 @@ class FaissDatabase:
         Initialize FAISS database.
 
         Args:
-            model_name: Sentence transformer model name
+            model_name: Sentence transformer model name (e.g., 'all-MiniLM-L6-v2', 'allenai/scibert_scivocab_uncased')
             index_path: Optional path to save/load FAISS index
         """
+        self.model_name = model_name
         self.model = SentenceTransformer(model_name)
         self.embedding_dim = self.model.get_sentence_embedding_dimension()
         self.index = faiss.IndexFlatIP(self.embedding_dim)
@@ -33,7 +34,16 @@ class FaissDatabase:
         self.index_path = index_path
         if index_path and os.path.exists(index_path):
             self.load(index_path)
-        logger.info(f"Initialized FAISS database (dim={self.embedding_dim})")
+        logger.info(f"Initialized FAISS database (dim={self.embedding_dim}, model={model_name})")
+
+    def set_model(self, model_name: str):
+        """Set a new embedding model for the database."""
+        self.model_name = model_name
+        self.model = SentenceTransformer(model_name)
+        self.embedding_dim = self.model.get_sentence_embedding_dimension()
+        self.index = faiss.IndexFlatIP(self.embedding_dim)
+        self.chunks = []
+        logger.info(f"Switched FAISS model to {model_name} (dim={self.embedding_dim})")
 
     def add_chunks(self, chunks: List[Dict]):
         """

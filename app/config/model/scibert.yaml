@@ -1,0 +1,6 @@
+openai:
+  model: gpt-3.5-turbo
+  temperature: 0.0
+  max_tokens: 200
+embedding:
+  model_name: allenai/specter2_base

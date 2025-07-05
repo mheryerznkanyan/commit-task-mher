@@ -68,10 +68,10 @@ def retrieve_answer_from_db(db, question, top_k=3):
 
 def batch_judge_with_llm(batch, model=JUDGE_MODEL):
     prompt = (
-        f"You are an expert judge. For each item below, rate the retrieved answer from 1 (irrelevant) to 100 (perfectly answers the question). "
-        f"Also provide a short justification.\n"
-        f"Return a JSON list of objects: {{'score': int, 'justification': str}}.\n"
-        f"Items:\n"
+        "You are an expert judge. For each item below, rate the retrieved answer from 1 (irrelevant) to 100 (perfectly answers the question). "
+        "Also provide a short justification.\n"
+        "Return a JSON list of objects: {'score': int, 'justification': str}.\n"
+        "Items:\n"
     )
     for i, qa in enumerate(batch):
         prompt += (

@@ -27,8 +27,6 @@ class ParagraphChunker(ChunkerBase):
         """
         Split arXiv paper text into paragraphs, handling common arXiv formatting.
         """
-        from nltk.tokenize import sent_tokenize
-
         # Normalize line endings and remove excessive blank lines
         lines = [line.rstrip() for line in text.splitlines()]
         paragraphs = []

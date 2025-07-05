@@ -102,7 +102,6 @@ class ResearchPipeline:
         try:
             pdf_data = self.pdf_processor.process_pdf(pdf_path)
             text = pdf_data["text"]
-            sentences = pdf_data["sentences"]
 
             # Debug: print first 500 chars and number of blank lines
             logger.debug(f"First 500 chars of text for {arxiv_id}: {text[:500]}")
@@ -218,7 +217,8 @@ class ResearchPipeline:
         return self.database.get_collection_info()
 
     def _evaluate_with_qa_llm_judge(self, qa_file=None, judge_model="gpt-4o", batch_size=2):
-        import re, ast
+        import re
+        import ast
         # Always look for qa_pairs.json in app/qa_pairs.json relative to project root
         if qa_file is None:
             qa_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../qa_pairs.json'))
@@ -251,10 +251,10 @@ class ResearchPipeline:
         all_scores = []
         for batch in batches:
             prompt = (
-                f"You are an expert judge. For each item below, rate the retrieved answer from 1 (irrelevant) to 100 (perfectly answers the question). "
-                f"Also provide a short justification.\n"
-                f"Return a JSON list of objects: {{'score': int, 'justification': str}}.\n"
-                f"Items:\n"
+                "You are an expert judge. For each item below, rate the retrieved answer from 1 (irrelevant) to 100 (perfectly answers the question). "
+                "Also provide a short justification.\n"
+                "Return a JSON list of objects: {'score': int, 'justification': str}.\n"
+                "Items:\n"
             )
             for i, qa in enumerate(batch):
                 prompt += (

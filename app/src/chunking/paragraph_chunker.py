@@ -1,80 +1,77 @@
-from typing import List, Dict, Optional
-from .base import ChunkerBase
-import logging
-import nltk
+"""
+Paragraph chunker for processing text into paragraph-based chunks.
+"""
 
-logger = logging.getLogger(__name__)
+from typing import List, Dict
+from sentence_transformers import SentenceTransformer
+from pdf_process import PDFProcessor
 
-class ParagraphChunker(ChunkerBase):
-    """
-    Chunks text by paragraphs, optimized for arXiv papers.
-    Handles common arXiv formatting quirks (e.g., excessive newlines, section headers).
-    """
-    def __init__(self, model_name: Optional[str] = None):
-        super().__init__(model_name)
-        # Ensure the punkt tokenizer is available
-        try:
-            nltk.data.find('tokenizers/punkt')
-        except LookupError:
-            nltk.download('punkt')
-
-    def _is_section_header(self, line: str) -> bool:
-        # Simple heuristic for arXiv section headers (e.g., "1 Introduction", "2.1 Related Work")
-        import re
-        return bool(re.match(r"^\s*\d+(\.\d+)*\s+[A-Z][\w\s\-]+$", line.strip()))
-
-    def create_chunks(self, text: str) -> List[Dict]:
-        """
-        Split arXiv paper text into paragraphs, handling common arXiv formatting.
-        """
-        # Normalize line endings and remove excessive blank lines
-        lines = [line.rstrip() for line in text.splitlines()]
+class ParagraphChunker:
+    """Chunker that creates chunks based on paragraph boundaries."""
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        self.model = SentenceTransformer(model_name)
+        self.pdf_processor = PDFProcessor()
+    def create_chunks(self, text: str, chunk_size: int = 5, overlap: int = 2, similarity_threshold: float = 0.85, min_sentence_length: int = 10, sentence_split_regex: str = r'(?<=[.!?])\s+(?=[A-Z])', **kwargs) -> List[Dict]:
+        if not text:
+            return []
+        sentences = self.pdf_processor.split_sentences(text)
+        if not sentences:
+            return []
+        return self.process_sentences(sentences, chunk_size=chunk_size, overlap=overlap, similarity_threshold=similarity_threshold, min_sentence_length=min_sentence_length, sentence_split_regex=sentence_split_regex, **kwargs)
+    def process_sentences(
+        self,
+        sentences: List[str],
+        chunk_size: int = 5,
+        overlap: int = 2,
+        similarity_threshold: float = 0.85,
+        min_sentence_length: int = 10,
+        sentence_split_regex: str = r'(?<=[.!?])\s+(?=[A-Z])',
+        **kwargs
+    ) -> List[Dict]:
+        if not sentences:
+            return []
+        # Filter out very short sentences
+        filtered_sentences = [
+            s.strip() for s in sentences 
+            if len(s.strip()) >= min_sentence_length
+        ]
+        if not filtered_sentences:
+            return []
+        # Group sentences into paragraphs (simple approach)
+        paragraphs = ParagraphChunker._group_into_paragraphs(filtered_sentences)
+        chunks = []
+        for i, paragraph in enumerate(paragraphs):
+            if paragraph:
+                chunk_text = " ".join(paragraph)
+                embedding = self.model.encode(chunk_text)
+                chunks.append({
+                    "text": chunk_text,
+                    "sentences": paragraph,
+                    "embedding": embedding,
+                    "paragraph_id": i,
+                    "chunk_type": "paragraph",
+                    "chunk_id": len(chunks)  # Add unique chunk_id
+                })
+        return chunks
+    @staticmethod
+    def _group_into_paragraphs(sentences: List[str]) -> List[List[str]]:
         paragraphs = []
         current_paragraph = []
-
-        for line in lines:
-            if self._is_section_header(line):
-                # Treat section headers as their own paragraph
-                if current_paragraph:
-                    paragraphs.append(" ".join(current_paragraph).strip())
-                    current_paragraph = []
-                paragraphs.append(line.strip())
-            elif line.strip() == "":
-                if current_paragraph:
-                    paragraphs.append(" ".join(current_paragraph).strip())
-                    current_paragraph = []
-            else:
-                current_paragraph.append(line.strip())
+        for sentence in sentences:
+            if ParagraphChunker._is_paragraph_start(sentence) and current_paragraph:
+                paragraphs.append(current_paragraph)
+                current_paragraph = []
+            current_paragraph.append(sentence)
         if current_paragraph:
-            paragraphs.append(" ".join(current_paragraph).strip())
-
-        # Remove empty paragraphs and very short ones (common in arXiv metadata)
-        paragraphs = [p for p in paragraphs if p and len(p.split()) > 5]
-
-        # Optionally, merge very short paragraphs with the next one (arXiv abstracts, etc.)
-        merged_paragraphs = []
-        buffer = ""
-        for para in paragraphs:
-            if len(para.split()) < 20:
-                buffer = buffer + " " + para if buffer else para
-            else:
-                if buffer:
-                    merged_paragraphs.append(buffer.strip())
-                    buffer = ""
-                merged_paragraphs.append(para)
-        if buffer:
-            merged_paragraphs.append(buffer.strip())
-
-        # Create chunks
-        chunks = []
-        for i, para in enumerate(merged_paragraphs):
-            chunk_embedding = self.get_embedding(para) if self.model else None
-            chunk = {
-                "text": para,
-                "embedding": chunk_embedding,
-                "paragraph_idx": i,
-                "chunk_id": i,
-            }
-            chunks.append(chunk)
-        logger.info(f"Created {len(chunks)} paragraph-based chunks from {len(merged_paragraphs)} paragraphs (arXiv mode)")
-        return chunks
+            paragraphs.append(current_paragraph)
+        return paragraphs
+    @staticmethod
+    def _is_paragraph_start(sentence: str) -> bool:
+        starters = [
+            "first", "second", "third", "finally", "in conclusion",
+            "however", "moreover", "furthermore", "additionally",
+            "on the other hand", "conversely", "meanwhile",
+            "the", "this", "these", "those", "we", "our", "the authors"
+        ]
+        sentence_lower = sentence.lower().strip()
+        return any(sentence_lower.startswith(starter) for starter in starters)

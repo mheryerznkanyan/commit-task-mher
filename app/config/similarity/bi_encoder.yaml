@@ -1,0 +1,2 @@
+_target_: similarity.bi_encoder_similarity.BiEncoderSimilarity
+model_name: all-MiniLM-L6-v2 

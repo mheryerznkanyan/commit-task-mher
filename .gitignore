@@ -24,3 +24,5 @@ chunks/
 
 # Logs
 *.log 
+*.DS_Store
+

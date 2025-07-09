@@ -22,10 +22,9 @@ from src.complex_qa import (
     load_faiss_db,
 )
 import hydra
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 
 load_dotenv()
-print("OPENAI_API_KEY:", os.getenv("OPENAI_API_KEY"))
 
 # Configure logging
 logging.basicConfig(
@@ -58,6 +57,9 @@ def judge_answers(question, answers):
 
 @hydra.main(config_path="config", config_name="config.yaml")
 def main(cfg: DictConfig):
+
+    print("\n===== HYDRA CONFIG =====\n" + OmegaConf.to_yaml(cfg) + "\n========================\n")
+
     db = load_faiss_db(cfg.paths.faiss_index)
     logger.info("\nComplex Question Answering (type 'exit' to quit)")
     while True:

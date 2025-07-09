@@ -4,15 +4,16 @@ Main Research Pipeline for processing ArXiv papers and building a vector databas
 
 import os
 import json
+import re
+import ast
 from typing import List, Dict, Optional
 import logging
 import openai
 
 from arxiv_client import ArXivClient
-from pdf_processor import PDFProcessor
-from chunking.paragraph_chunker import ParagraphChunker
-from chunking.semantic_chunker import SemanticChunker
-from chunking.token_chunker import TokenChunker
+from pdf_process import PDFProcessor
+
+from chunking import SemanticChunker, ParagraphChunker, TokenChunker
 from faiss_database import FaissDatabase
 
 # Configure logging
@@ -25,11 +26,26 @@ logger = logging.getLogger(__name__)
 class ResearchPipeline:
     """Main pipeline for processing research papers and building a vector database."""
 
-    def __init__(self, cfg):
-        self.cfg = cfg
-        self.downloads_dir = cfg.data.paths.downloads_dir
-        self.chunks_dir = cfg.data.paths.chunks_dir
-        self.model_name = cfg.model.embedding.model_name
+    def __init__(
+        self,
+        downloads_dir: str = "downloads",
+        chunks_dir: str = "chunks",
+        llm_evaluation_config: Optional[Dict] = None,
+        chunking_config: Optional[Dict] = None,
+    ):
+        """
+        Initialize the research pipeline.
+
+        Args:
+            downloads_dir: Directory for downloaded PDFs
+            chunks_dir: Directory for saved chunks
+            llm_evaluation_config: Configuration for LLM evaluation
+            chunking_config: Configuration for chunking strategy
+        """
+        self.downloads_dir = downloads_dir
+        self.chunks_dir = chunks_dir
+        self.llm_evaluation_config = llm_evaluation_config or {}
+        self.chunking_config = chunking_config or {}
 
         # Create directories
         os.makedirs(self.downloads_dir, exist_ok=True)
@@ -38,21 +54,26 @@ class ResearchPipeline:
         # Initialize components
         self.arxiv_client = ArXivClient()
         self.pdf_processor = PDFProcessor()
-        
-        # Initialize chunker based on config strategy
-        chunking_strategy = cfg.chunking.strategy
-        if chunking_strategy == "paragraph":
-            self.chunker = ParagraphChunker(model_name=self.model_name)
-        elif chunking_strategy == "semantic":
-            self.chunker = SemanticChunker(model_name=self.model_name)
-        elif chunking_strategy == "token":
-            self.chunker = TokenChunker(model_name=self.model_name)
-        else:
-            raise ValueError(f"Unknown chunking strategy: {chunking_strategy}. Available strategies: paragraph, semantic, token")
-            
-        self.database = FaissDatabase(model_name=self.model_name)
 
-        logger.info(f"Research pipeline initialized with model: {self.model_name}")
+        self.chunker = self._get_chunker()
+        self.database = FaissDatabase()
+
+        logger.info("Research pipeline initialized")
+
+    def _get_chunker(self):
+        """Get the appropriate chunker based on configuration."""
+        strategy = self.chunking_config.get("strategy", "semantic")
+        model_name = self.chunking_config.get("model", "all-MiniLM-L6-v2")
+        
+        if strategy == "semantic":
+            return SemanticChunker(model_name)
+        elif strategy == "paragraph":
+            return ParagraphChunker(model_name)
+        elif strategy == "token":
+            return TokenChunker(model_name)
+        else:
+            logger.warning(f"Unknown chunking strategy: {strategy}, falling back to semantic")
+            return SemanticChunker(model_name)
 
     def search_and_download(
         self, query: str, max_results: int = 5, max_workers: int = 8
@@ -103,12 +124,26 @@ class ResearchPipeline:
             pdf_data = self.pdf_processor.process_pdf(pdf_path)
             text = pdf_data["text"]
 
-            # Debug: print first 500 chars and number of blank lines
-            logger.debug(f"First 500 chars of text for {arxiv_id}: {text[:500]}")
-            logger.debug(f"Number of blank lines (\\n\\n) in text: {text.count('\n\n')}")
+
+            if not pdf_data["sentences"]:
+                logger.warning(f"No sentences extracted from {pdf_path}")
+                return None
+
+            # Create chunks using configured strategy
+            # Get all config parameters except strategy and model
+            chunk_params = {k: v for k, v in self.chunking_config.items() 
+                          if k not in ["strategy", "model"]}
+            
+            chunks = self.chunker.process_sentences(
+                pdf_data["sentences"],
+                **chunk_params
+            )
 
             # Create chunks using the configured chunker
             chunks = self.chunker.create_chunks(text)
+            if not isinstance(chunks, list):
+                logger.warning(f"Chunker returned non-list for {arxiv_id}, skipping.")
+                return None
             for chunk in chunks:
                 chunk["arxiv_id"] = arxiv_id
 
@@ -216,21 +251,202 @@ class ResearchPipeline:
         """Get database statistics."""
         return self.database.get_collection_info()
 
+    def deduplicate_chunks(
+        self,
+        chunks: List[Dict],
+        similarity_model=None,
+        similarity_threshold: float = 0.95,
+        top_k: int = 10,
+        keep_strategy: str = "first",
+        batch_size: int = 100
+    ) -> tuple[List[Dict], Dict]:
+        """
+        Remove similar chunks using the provided similarity_model's batch hybrid method.
+        Args:
+            chunks: List of chunks to deduplicate
+            similarity_model: Similarity model instance (must have find_topk_hybrid_similarity_batch)
+            similarity_threshold: Threshold for considering chunks similar
+            top_k: Number of most similar chunks to check per chunk
+            keep_strategy: Strategy for keeping chunks ('first', 'longest', 'highest_score')
+            batch_size: Batch size for progress logging
+        Returns:
+            Tuple of (deduplicated_chunks, deduplication_stats)
+        """
+        logger.info(f"Starting chunk deduplication with {len(chunks)} chunks (hybrid batch)")
+        n = len(chunks)
+        similar_pairs = []
+        # Process in batches for efficiency
+        for batch_start in range(0, n, batch_size):
+            batch_end = min(batch_start + batch_size, n)
+            batch_chunks = chunks[batch_start:batch_end]
+            logger.info(f"Processing batch {batch_start+1}-{batch_end} of {n}")
+            for i, chunk in enumerate(batch_chunks):
+                # Exclude self from candidates
+                global_idx = batch_start + i
+                candidates = chunks[:global_idx] + chunks[global_idx+1:]
+                results = similarity_model.find_topk_hybrid_similarity_batch(
+                    queries=[chunk["text"]],
+                    candidate_chunks=candidates,
+                    top_k_v1=top_k,
+                    top_k=top_k,
+                    threshold=similarity_threshold,
+                    batch_size=batch_size
+                )[0]  # Only one query
+                for result in results:
+                    similar_pairs.append((chunk["chunk_id"], result["chunk_id"], result["score"]))
+        # Remove all chunks that appear as similar_chunk_id in any pair
+        to_remove = set(pair[1] for pair in similar_pairs)
+        dedup_chunks = [chunk for chunk in chunks if chunk["chunk_id"] not in to_remove]
+        stats = {
+            "original_count": len(chunks),
+            "removed_count": len(to_remove),
+            "final_count": len(dedup_chunks),
+            "reduction_percent": round((len(to_remove) / len(chunks)) * 100, 2),
+            "similar_pairs_found": len(similar_pairs),
+            "similarity_threshold": similarity_threshold,
+            "keep_strategy": keep_strategy,
+            "processing_method": "hybrid_batch"
+        }
+        logger.info(f"Deduplication complete: {stats['removed_count']} chunks removed ({stats['reduction_percent']}% reduction)")
+        return dedup_chunks, stats
+
+    def run_complete_pipeline(
+        self, 
+        query: str, 
+        max_results: int = 5,
+        deduplicate: bool = False,
+        similarity_model=None,
+        similarity_threshold: float = 0.95,
+        top_k: int = 10,
+        keep_strategy: str = "first",
+        faiss_index_path: str = None
+    ) -> Dict:
+        """
+        Run the complete pipeline with optional steps.
+        Args:
+            query: Search query
+            max_results: Maximum number of papers to process
+            deduplicate: Whether to deduplicate chunks (can be skipped)
+            similarity_model: Similarity model instance (must have search_documents)
+            similarity_threshold: Threshold for deduplication
+            top_k: Number of most similar chunks to check per chunk
+            keep_strategy: Strategy for keeping chunks
+            faiss_index_path: Path to save the FAISS index (from config)
+        Returns:
+            Pipeline results summary
+        """
+        logger.info(f"Starting complete pipeline with deduplication for query: {query}")
+        # Step 1: Search and download
+        papers = self.search_and_download(query, max_results)
+        if not papers:
+            return {"error": "No papers found"}
+        # Step 2: Process papers
+        processed_chunks = self.process_papers(papers)
+        # Step 3: Deduplicate chunks if requested
+        deduplication_stats = None
+        if deduplicate and processed_chunks:
+            logger.info("Starting chunk deduplication...")
+            # Collect all chunks
+            all_chunks = []
+            for arxiv_id, chunks in processed_chunks.items():
+                all_chunks.extend(chunks)
+            # Deduplicate
+            dedup_chunks, deduplication_stats = self.deduplicate_chunks(
+                chunks=all_chunks,
+                similarity_model=similarity_model,
+                similarity_threshold=similarity_threshold,
+                top_k=top_k,
+                keep_strategy=keep_strategy
+            )
+            # Rebuild processed_chunks with deduplicated chunks
+            if deduplication_stats['removed_count'] > 0:
+                logger.info("Rebuilding database with deduplicated chunks...")
+                # Clear existing database
+                self.database.clear()
+                # Re-add papers with deduplicated chunks
+                chunk_by_arxiv = {}
+                for chunk in dedup_chunks:
+                    arxiv_id = chunk["arxiv_id"]
+                    if arxiv_id not in chunk_by_arxiv:
+                        chunk_by_arxiv[arxiv_id] = []
+                    chunk_by_arxiv[arxiv_id].append(chunk)
+                # Update processed_chunks
+                processed_chunks = chunk_by_arxiv
+                # Re-add to database
+                for paper in papers:
+                    if paper["arxiv_id"] in processed_chunks:
+                        self.add_paper_to_database(paper, processed_chunks[paper["arxiv_id"]])
+        # Step 4: Save FAISS database
+        if isinstance(self.database, FaissDatabase):
+            logger.info("Saving FAISS database to disk...")
+            if not faiss_index_path:
+                # Default to config path if not provided
+                faiss_index_path = self.llm_evaluation_config.get('faiss_index_path') or 'app/vector_db/faiss_index'
+            os.makedirs(os.path.dirname(faiss_index_path), exist_ok=True)
+            self.database.save(faiss_index_path)
+            logger.info("FAISS database saved.")
+        # Step 5: Get database stats
+        db_stats = self.get_database_stats()
+
+        # Step 6: LLM Evaluation (if enabled)
+        llm_score = None
+        if self.llm_evaluation_config.get("enabled", False):
+            logger.info("Starting LLM evaluation...")
+            try:
+                llm_score = self._evaluate_with_qa_llm_judge(
+                    qa_file=self.llm_evaluation_config.get("qa_file"),
+                    judge_model=self.llm_evaluation_config.get("judge_model", "gpt-4o"),
+                    batch_size=self.llm_evaluation_config.get("batch_size", 2)
+                )
+                logger.info(f"LLM evaluation completed with score: {llm_score}")
+            except Exception as e:
+                logger.error(f"LLM evaluation failed: {e}")
+        # Summary
+        summary = {
+            "query": query,
+            "papers_found": len(papers),
+            "papers_processed": len(processed_chunks),
+            "total_chunks": sum(len(chunks) for chunks in processed_chunks.values()),
+            "database_stats": db_stats,
+            "arxiv_ids": list(processed_chunks.keys()),
+            "average_llm_qa_score": llm_score,
+        }
+        if deduplication_stats:
+            summary["deduplication_stats"] = deduplication_stats
+        if llm_score is not None:
+            summary["llm_evaluation_score"] = llm_score
+        logger.info(f"Pipeline with deduplication completed: {summary}")
+        return summary
+
+
     def _evaluate_with_qa_llm_judge(self, qa_file=None, judge_model="gpt-4o", batch_size=2):
-        import re
-        import ast
+        """
+        Evaluate the database using QA pairs and LLM judge.
+        
+        Args:
+            qa_file: Path to QA pairs file (None = use default)
+            judge_model: Model to use for judging
+            batch_size: Batch size for evaluation
+            
+        Returns:
+            Average score or None if evaluation failed
+        """
         # Always look for qa_pairs.json in app/qa_pairs.json relative to project root
         if qa_file is None:
             qa_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../qa_pairs.json'))
+        
         # Load QA pairs
         if not os.path.exists(qa_file):
             logger.warning(f"QA file not found: {qa_file}")
             return None
+            
         with open(qa_file, "r", encoding="utf-8") as f:
             qa_pairs = json.load(f)
+            
         if not qa_pairs:
             logger.warning("No QA pairs loaded.")
             return None
+            
         # Prepare batches for LLM judge
         batches = []
         batch = []
@@ -246,6 +462,7 @@ class ResearchPipeline:
                 batch = []
         if batch:
             batches.append(batch)
+            
         # LLM judge
         openai.api_key = os.getenv("OPENAI_API_KEY")
         all_scores = []
@@ -291,63 +508,3 @@ class ResearchPipeline:
         avg_score = sum(all_scores) / len(all_scores) if all_scores else 0
         logger.info(f"Average LLM QA Score: {avg_score:.2f} over {len(all_scores)} QA pairs.")
         return avg_score
-
-    def run_complete_pipeline(self, query: str, max_results: int = 5) -> Dict:
-        """
-        Run the complete pipeline: search, download, process, and index.
-
-        Args:
-            query: Search query
-            max_results: Maximum number of papers to process
-
-        Returns:
-            Pipeline results summary
-        """
-        logger.info(f"Starting complete pipeline for query: {query}")
-
-        # Step 1: Search and download
-        papers = self.search_and_download(query, max_results)
-
-        if not papers:
-            return {"error": "No papers found"}
-
-        # Step 2: Process papers
-        processed_chunks = self.process_papers(papers)
-
-        # Automatically save FAISS database after processing
-        if isinstance(self.database, FaissDatabase):
-            logger.info("Saving FAISS database to disk...")
-            os.makedirs("app/vector_db", exist_ok=True)
-            self.database.save("app/vector_db/faiss_index")
-            logger.info("FAISS database saved.")
-
-        # Step 3: Get database stats
-        db_stats = self.get_database_stats()
-
-        # Step 4: Run QA/LLM evaluation and log results
-        if self.cfg.enable_llm_evaluation:
-            avg_score = self._evaluate_with_qa_llm_judge(
-                qa_file=self.cfg.qa_file,
-                judge_model=self.cfg.judge_model,
-                batch_size=self.cfg.batch_size
-            )
-            if avg_score is not None:
-                logger.info(f"Average LLM QA Score: {avg_score:.2f}")
-        else:
-            avg_score = None
-            logger.info("LLM evaluation disabled in config")
-
-        # Summary
-        summary = {
-            "query": query,
-            "papers_found": len(papers),
-            "papers_processed": len(processed_chunks),
-            "total_chunks": sum(len(chunks) for chunks in processed_chunks.values()),
-            "database_stats": db_stats,
-            "arxiv_ids": list(processed_chunks.keys()),
-            "average_llm_qa_score": avg_score,
-        }
-
-        logger.info(f"Pipeline completed: {summary}")
-        return summary
-# Average LLM QA Score: 32.55 over 100 QA pairs.

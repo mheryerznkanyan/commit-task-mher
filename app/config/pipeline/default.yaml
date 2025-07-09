@@ -1,0 +1,4 @@
+query: "transformers in healthcare"
+max_results: 2
+top_k: 3
+max_workers: 8 

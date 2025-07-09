@@ -1,6 +1,0 @@
-chunking:
-  chunk_size: 5
-  overlap: 2
-  similarity_threshold: 0.85
-  min_sentence_length: 10
-  sentence_split_regex: '(?<=[.!?])\\s+(?=[A-Z])' 

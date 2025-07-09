@@ -1,0 +1,2 @@
+_target_: similarity.cross_encoder_similarity.CrossEncoderSimilarity
+model_name: cross-encoder/ms-marco-MiniLM-L-6-v2 

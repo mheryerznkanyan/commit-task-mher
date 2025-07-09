@@ -5,10 +5,14 @@ Main script demonstrating the complete research pipeline.
 import logging
 import sys
 import os
+from omegaconf import DictConfig, OmegaConf
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 import research_pipeline
 from faiss_database import FaissDatabase
+import hydra
+from omegaconf import DictConfig
+import hydra.utils
 
 # Configure logging
 logging.basicConfig(
@@ -20,23 +24,32 @@ os.makedirs("app/chunks", exist_ok=True)
 os.makedirs("app/downloads", exist_ok=True)
 
 
-def main():
+@hydra.main(config_path="config", config_name="config.yaml")
+def main(cfg: DictConfig):
     """Run the complete research pipeline."""
 
-    # Initialize pipeline
-    pipeline = research_pipeline.ResearchPipeline()
+    print("\n===== HYDRA CONFIG =====\n" + OmegaConf.to_yaml(cfg) + "\n========================\n")
+    # exit()
+    # Initialize pipeline with configs
+    pipeline = research_pipeline.ResearchPipeline(
+        llm_evaluation_config=cfg.llm_evaluation,
+        chunking_config=cfg.chunking
+    )
 
-    # Example query
-    query = "large language models"
-    max_results = 15
+    # Instantiate similarity model using hydra.utils.instantiate
+    similarity_model = hydra.utils.instantiate(cfg.similarity)
 
-    logger.info("Starting research pipeline")
-    logger.info(f"Query: {query}")
-    logger.info(f"Max results: {max_results}")
-
-    # Run complete pipeline
+    # Run complete pipeline with optional steps
     try:
-        results = pipeline.run_complete_pipeline(query, max_results)
+        results = pipeline.run_complete_pipeline(
+            query=cfg.pipeline.query,
+            max_results=cfg.pipeline.max_results,
+            deduplicate=cfg.pipeline.deduplicate,
+            similarity_model=similarity_model,
+            similarity_threshold=cfg.pipeline.similarity_threshold,
+            top_k=cfg.pipeline.top_k,
+            keep_strategy=cfg.pipeline.keep_strategy
+        )
         logger.info(pipeline.get_database_stats())
 
         if "error" in results:
@@ -67,7 +80,7 @@ def main():
         logger.info("=" * 60)
 
         search_query = "transformer architecture"
-        search_results = pipeline.search_database(search_query, top_k=3)
+        search_results = pipeline.search_database(search_query, top_k=cfg.db.top_k)
 
         logger.info(f"Search query: {search_query}")
         logger.info(f"Results found: {len(search_results)}")

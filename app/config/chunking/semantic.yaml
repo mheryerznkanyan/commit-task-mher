@@ -1,0 +1,4 @@
+
+strategy: semantic
+chunk_size: 5
+overlap: 2

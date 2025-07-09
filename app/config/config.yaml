@@ -16,11 +16,8 @@ openai:
   temperature: 0.0
   max_tokens: 150
 
-pipeline:
-  query: "transformers in healthcare"
-  max_results: 7
-  top_k: 3
-  max_workers: 8
+db:
+  top_k: 5 
 
 # LLM evaluation configuration
 llm_evaluation:

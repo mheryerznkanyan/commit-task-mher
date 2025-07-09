@@ -11,7 +11,7 @@ import logging
 import openai
 
 from arxiv_client import ArXivClient
-from pdf_processor import PDFProcessor
+from pdf_process import PDFProcessor
 
 from chunking import SemanticChunker, ParagraphChunker, TokenChunker
 from faiss_database import FaissDatabase
@@ -141,6 +141,9 @@ class ResearchPipeline:
 
             # Create chunks using the configured chunker
             chunks = self.chunker.create_chunks(text)
+            if not isinstance(chunks, list):
+                logger.warning(f"Chunker returned non-list for {arxiv_id}, skipping.")
+                return None
             for chunk in chunks:
                 chunk["arxiv_id"] = arxiv_id
 
@@ -311,11 +314,12 @@ class ResearchPipeline:
         self, 
         query: str, 
         max_results: int = 5,
-        deduplicate: bool = True,
+        deduplicate: bool = False,
         similarity_model=None,
         similarity_threshold: float = 0.95,
         top_k: int = 10,
-        keep_strategy: str = "first"
+        keep_strategy: str = "first",
+        faiss_index_path: str = None
     ) -> Dict:
         """
         Run the complete pipeline with optional steps.
@@ -327,6 +331,7 @@ class ResearchPipeline:
             similarity_threshold: Threshold for deduplication
             top_k: Number of most similar chunks to check per chunk
             keep_strategy: Strategy for keeping chunks
+            faiss_index_path: Path to save the FAISS index (from config)
         Returns:
             Pipeline results summary
         """
@@ -374,8 +379,11 @@ class ResearchPipeline:
         # Step 4: Save FAISS database
         if isinstance(self.database, FaissDatabase):
             logger.info("Saving FAISS database to disk...")
-            os.makedirs("app/vector_db", exist_ok=True)
-            self.database.save("app/vector_db/faiss_index")
+            if not faiss_index_path:
+                # Default to config path if not provided
+                faiss_index_path = self.llm_evaluation_config.get('faiss_index_path') or 'app/vector_db/faiss_index'
+            os.makedirs(os.path.dirname(faiss_index_path), exist_ok=True)
+            self.database.save(faiss_index_path)
             logger.info("FAISS database saved.")
         # Step 5: Get database stats
         db_stats = self.get_database_stats()

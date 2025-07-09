@@ -108,11 +108,16 @@ class FaissDatabase:
         """
         Save FAISS index and chunk metadata to disk. Defaults to "faiss_index" prefix.
         """
-        faiss.write_index(self.index, path + ".index")
-        with open(path + ".chunks.pkl", "wb") as f:
+        import os
+        abs_index_path = os.path.abspath(path + ".index")
+        abs_chunks_path = os.path.abspath(path + ".chunks.pkl")
+        logger.info(f"Number of chunks in FAISS before saving: {len(self.chunks)}")
+        logger.info(f"Number of vectors in FAISS index before saving: {self.index.ntotal}")
+        faiss.write_index(self.index, abs_index_path)
+        with open(abs_chunks_path, "wb") as f:
             pickle.dump(self.chunks, f)
         logger.info(
-            f"Saved FAISS index and chunks to {path}.index and {path}.chunks.pkl"
+            f"Saved FAISS index and chunks to {abs_index_path} and {abs_chunks_path}"
         )
 
     def load(self, path: str = "faiss_index"):

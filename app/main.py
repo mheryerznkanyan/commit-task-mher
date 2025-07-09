@@ -39,8 +39,9 @@ def main(cfg: DictConfig):
     similarity_model = hydra.utils.instantiate(cfg.similarity)
 
     # Initialize pipeline
-    pipeline = research_pipeline.ResearchPipeline(cfg)
+    # pipeline = research_pipeline.ResearchPipeline(cfg)
 
+    faiss_index_path = hydra.utils.to_absolute_path(cfg.data.paths.faiss_index)
 
     # Run complete pipeline with optional steps
     try:
@@ -51,7 +52,8 @@ def main(cfg: DictConfig):
             similarity_model=similarity_model,
             similarity_threshold=cfg.pipeline.similarity_threshold,
             top_k=cfg.pipeline.top_k,
-            keep_strategy=cfg.pipeline.keep_strategy
+            keep_strategy=cfg.pipeline.keep_strategy,
+            faiss_index_path=faiss_index_path
         )
         logger.info(pipeline.get_database_stats())
 

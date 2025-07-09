@@ -4,11 +4,20 @@ Paragraph chunker for processing text into paragraph-based chunks.
 
 from typing import List, Dict
 from sentence_transformers import SentenceTransformer
+from pdf_process import PDFProcessor
 
 class ParagraphChunker:
     """Chunker that creates chunks based on paragraph boundaries."""
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
         self.model = SentenceTransformer(model_name)
+        self.pdf_processor = PDFProcessor()
+    def create_chunks(self, text: str, chunk_size: int = 5, overlap: int = 2, similarity_threshold: float = 0.85, min_sentence_length: int = 10, sentence_split_regex: str = r'(?<=[.!?])\s+(?=[A-Z])', **kwargs) -> List[Dict]:
+        if not text:
+            return []
+        sentences = self.pdf_processor.split_sentences(text)
+        if not sentences:
+            return []
+        return self.process_sentences(sentences, chunk_size=chunk_size, overlap=overlap, similarity_threshold=similarity_threshold, min_sentence_length=min_sentence_length, sentence_split_regex=sentence_split_regex, **kwargs)
     def process_sentences(
         self,
         sentences: List[str],

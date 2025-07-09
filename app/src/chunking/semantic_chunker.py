@@ -1,3 +1,4 @@
+
 """
 Semantic chunker for processing text into meaningful chunks.
 """
@@ -42,4 +43,3 @@ class SemanticChunker(ChunkerBase):
                     "end_idx": min(i + chunk_size, len(sentences)),
                     "chunk_id": len(chunks)  # Add unique chunk_id
                 })
-        return chunks 

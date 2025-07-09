@@ -12,6 +12,7 @@ import openai
 
 from arxiv_client import ArXivClient
 from pdf_processor import PDFProcessor
+
 from chunking import SemanticChunker, ParagraphChunker, TokenChunker
 from faiss_database import FaissDatabase
 from similarity.similarity_utils import deduplicate_chunks_pipeline
@@ -49,12 +50,13 @@ class ResearchPipeline:
         self.chunking_config = chunking_config or {}
 
         # Create directories
-        os.makedirs(downloads_dir, exist_ok=True)
-        os.makedirs(chunks_dir, exist_ok=True)
+        os.makedirs(self.downloads_dir, exist_ok=True)
+        os.makedirs(self.chunks_dir, exist_ok=True)
 
         # Initialize components
         self.arxiv_client = ArXivClient()
         self.pdf_processor = PDFProcessor()
+
         self.chunker = self._get_chunker()
         self.database = FaissDatabase()
 
@@ -121,8 +123,9 @@ class ResearchPipeline:
             List of chunks or None if failed
         """
         try:
-            # Process PDF
             pdf_data = self.pdf_processor.process_pdf(pdf_path)
+            text = pdf_data["text"]
+
 
             if not pdf_data["sentences"]:
                 logger.warning(f"No sentences extracted from {pdf_path}")
@@ -138,7 +141,8 @@ class ResearchPipeline:
                 **chunk_params
             )
 
-            # Add arxiv_id to chunks
+            # Create chunks using the configured chunker
+            chunks = self.chunker.create_chunks(text)
             for chunk in chunks:
                 chunk["arxiv_id"] = arxiv_id
 
@@ -377,6 +381,7 @@ class ResearchPipeline:
             logger.info("FAISS database saved.")
         # Step 5: Get database stats
         db_stats = self.get_database_stats()
+
         # Step 6: LLM Evaluation (if enabled)
         llm_score = None
         if self.llm_evaluation_config.get("enabled", False):
@@ -398,6 +403,7 @@ class ResearchPipeline:
             "total_chunks": sum(len(chunks) for chunks in processed_chunks.values()),
             "database_stats": db_stats,
             "arxiv_ids": list(processed_chunks.keys()),
+            "average_llm_qa_score": avg_score,
         }
         if deduplication_stats:
             summary["deduplication_stats"] = deduplication_stats
@@ -405,6 +411,7 @@ class ResearchPipeline:
             summary["llm_evaluation_score"] = llm_score
         logger.info(f"Pipeline with deduplication completed: {summary}")
         return summary
+
 
     def _evaluate_with_qa_llm_judge(self, qa_file=None, judge_model="gpt-4o", batch_size=2):
         """

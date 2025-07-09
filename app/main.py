@@ -5,6 +5,8 @@ Main script demonstrating the complete research pipeline.
 import logging
 import sys
 import os
+import hydra
+
 from omegaconf import DictConfig, OmegaConf
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
@@ -29,8 +31,7 @@ def main(cfg: DictConfig):
     """Run the complete research pipeline."""
 
     print("\n===== HYDRA CONFIG =====\n" + OmegaConf.to_yaml(cfg) + "\n========================\n")
-    # exit()
-    # Initialize pipeline with configs
+
     pipeline = research_pipeline.ResearchPipeline(
         llm_evaluation_config=cfg.llm_evaluation,
         chunking_config=cfg.chunking
@@ -38,6 +39,13 @@ def main(cfg: DictConfig):
 
     # Instantiate similarity model using hydra.utils.instantiate
     similarity_model = hydra.utils.instantiate(cfg.similarity)
+
+    # Initialize pipeline
+    pipeline = research_pipeline.ResearchPipeline(cfg)
+
+    # Example query
+    query = cfg.pipeline.query
+    max_results = cfg.pipeline.max_results
 
     # Run complete pipeline with optional steps
     try:

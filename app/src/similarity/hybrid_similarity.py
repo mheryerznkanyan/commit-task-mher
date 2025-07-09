@@ -2,7 +2,7 @@
 Hybrid similarity search: bi-encoder for filtering, cross-encoder for re-ranking.
 """
 
-from typing import List, Dict, Optional
+from typing import List, Dict
 import logging
 import numpy as np
 

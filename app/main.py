@@ -12,8 +12,6 @@ from omegaconf import DictConfig, OmegaConf
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 import research_pipeline
 from faiss_database import FaissDatabase
-import hydra
-from omegaconf import DictConfig
 import hydra.utils
 
 # Configure logging
@@ -43,9 +41,6 @@ def main(cfg: DictConfig):
     # Initialize pipeline
     pipeline = research_pipeline.ResearchPipeline(cfg)
 
-    # Example query
-    query = cfg.pipeline.query
-    max_results = cfg.pipeline.max_results
 
     # Run complete pipeline with optional steps
     try:

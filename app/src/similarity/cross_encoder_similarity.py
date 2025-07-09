@@ -2,9 +2,8 @@
 Cross-encoder similarity search implementation using sentence transformers.
 """
 
-import numpy as np
 from sentence_transformers import CrossEncoder
-from typing import List, Dict, Optional
+from typing import List, Dict
 import logging
 
 from .base import BaseSimilaritySearch

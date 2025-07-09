@@ -15,8 +15,6 @@ from pdf_processor import PDFProcessor
 
 from chunking import SemanticChunker, ParagraphChunker, TokenChunker
 from faiss_database import FaissDatabase
-from similarity.similarity_utils import deduplicate_chunks_pipeline
-from similarity.hybrid_similarity import HybridSimilarity
 
 # Configure logging
 logging.basicConfig(
@@ -403,7 +401,7 @@ class ResearchPipeline:
             "total_chunks": sum(len(chunks) for chunks in processed_chunks.values()),
             "database_stats": db_stats,
             "arxiv_ids": list(processed_chunks.keys()),
-            "average_llm_qa_score": avg_score,
+            "average_llm_qa_score": llm_score,
         }
         if deduplication_stats:
             summary["deduplication_stats"] = deduplication_stats

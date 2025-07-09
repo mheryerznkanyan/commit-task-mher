@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple, Any, Set
+from typing import List, Dict, Tuple, Any
 import logging
 import numpy as np
 
@@ -180,7 +180,6 @@ def find_similar_chunks_hybrid(
                     top_k_indices = np.argpartition(similarities, -top_k_bi)[-top_k_bi:]
                 else:
                     top_k_indices = np.where(similarities > -np.inf)[0]
-                candidate_ids = [chunks[i]["chunk_id"] for i in top_k_indices]
                 candidate_texts = [chunks[i]["text"] for i in top_k_indices]
                 # Step 3: Cross-encoder re-ranking
                 cross_scores = cross_encoder_model.compute_cross_scores(batch_chunk["text"], candidate_texts)

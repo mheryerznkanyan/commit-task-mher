@@ -4,7 +4,6 @@ Semantic chunker for processing text into meaningful chunks.
 """
 
 from typing import List, Dict
-import numpy as np
 from sentence_transformers import SentenceTransformer
 
 

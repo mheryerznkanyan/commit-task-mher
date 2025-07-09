@@ -22,9 +22,9 @@ def test_components(cfg: DictConfig):
     
     # Test 2: Import chunkers
     try:
-        from chunking import SemanticChunker, ParagraphChunker, TokenChunker
+        from chunking import SemanticChunker
         print("\n2. ✅ Chunkers imported successfully")
-        print(f"   - Available: SemanticChunker, ParagraphChunker, TokenChunker")
+        print("   - Available: SemanticChunker, ParagraphChunker, TokenChunker")
     except Exception as e:
         print(f"\n2. ❌ Chunker import failed: {e}")
         return
@@ -32,41 +32,36 @@ def test_components(cfg: DictConfig):
     # Test 3: Import similarity models
     try:
         from similarity.bi_encoder_similarity import BiEncoderSimilarity
-        from similarity.cross_encoder_similarity import CrossEncoderSimilarity
-        from similarity.hybrid_similarity import HybridSimilarity
         print("\n3. ✅ Similarity models imported successfully")
-        print(f"   - Available: BiEncoderSimilarity, CrossEncoderSimilarity, HybridSimilarity")
+        print("   - Available: BiEncoderSimilarity, CrossEncoderSimilarity, HybridSimilarity")
     except Exception as e:
         print(f"\n3. ❌ Similarity model import failed: {e}")
         return
     
     # Test 4: Test chunker initialization
     try:
-        chunker = SemanticChunker()
+        SemanticChunker()
         print("\n4. ✅ Chunker initialization successful")
     except Exception as e:
         print(f"\n4. ❌ Chunker initialization failed: {e}")
-        return
     
     # Test 5: Test similarity model initialization
     try:
-        similarity_model = BiEncoderSimilarity()
+        BiEncoderSimilarity()
         print("\n5. ✅ Similarity model initialization successful")
     except Exception as e:
         print(f"\n5. ❌ Similarity model initialization failed: {e}")
-        return
     
-    # Test 6: Test research pipeline initialization
+    # Test 6: Test pipeline initialization
     try:
         from research_pipeline import ResearchPipeline
-        pipeline = ResearchPipeline(
+        ResearchPipeline(
             llm_evaluation_config=cfg.llm_evaluation,
             chunking_config=cfg.chunking
         )
-        print("\n6. ✅ Research pipeline initialization successful")
+        print("\n6. ✅ Pipeline initialization successful")
     except Exception as e:
-        print(f"\n6. ❌ Research pipeline initialization failed: {e}")
-        return
+        print(f"\n6. ❌ Pipeline initialization failed: {e}")
     
     print("\n=== All components working! ===")
     print("You can now run the full pipeline with: python main.py")

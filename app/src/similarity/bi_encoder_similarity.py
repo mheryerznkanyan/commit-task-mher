@@ -4,7 +4,7 @@ Bi-encoder similarity search implementation using sentence transformers.
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional
 import logging
 from sklearn.metrics.pairwise import cosine_similarity
 
